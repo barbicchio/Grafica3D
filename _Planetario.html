@@ -1,0 +1,102 @@
+<html>
+	<head>
+		<title>Fiore</title>
+		<style>
+
+		body {
+			font-family: Monospace;
+			background-color: #f0f0f0;
+			margin: 0px;
+			overflow: hidden;
+		}
+
+		canvas {
+			width: 100%;
+			height: 100%;
+		}
+
+	</style>
+	<script src="lib/OrbitControls.js"></script>
+	<script src="lib/three.min.js"></script>
+	<script src="lib/stats.min.js"></script>
+
+
+	</head>
+	<body>
+
+		<script>
+			var scene = new THREE.Scene();
+			var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+			var renderer = new THREE.WebGLRenderer();
+
+			renderer.setSize( window.innerWidth, window.innerHeight );
+			renderer.setClearColor( 0xf0f0f0 );
+			document.body.appendChild( renderer.domElement );
+
+			//Aggiungo il gambo nel punto centrale
+			var gambo_geom = new THREE.CylinderGeometry(0.1, 0.1, 3);
+			var gambo_mat = new THREE.MeshBasicMaterial({color: 0x00CC00})
+			var gambo = new THREE.Mesh(gambo_geom, gambo_mat);
+			scene.add(gambo);
+
+			//Aggiungo il centro
+			var geometry = new THREE.SphereGeometry( 0.2, 32, 32 );
+			var material = new THREE.MeshBasicMaterial( {color: 0xFFCC00} );
+			var sphere = new THREE.Mesh( geometry, material );
+			scene.add( sphere );
+			//Devo traslarlo sopra al gambo, quindi uso un pivot
+			var pivot_centro = new THREE.Object3D();
+			pivot_centro.position.set(0,1.5,0);
+			scene.add(pivot_centro);
+			pivot_centro.add(sphere);
+
+			//Creo una unica geometry e material per i petali
+			var petalo_geom = new THREE.CylinderGeometry(0.1, 0, 1.5);
+			var petalo_mat = new THREE.MeshBasicMaterial({color: 0xFF3333});
+
+			//Array di petali
+			var petali = [20];
+			var pivot_petalo = [20];
+			//Variabile incrementale per gestire la rotazione
+			var rotazione_tot = 0;
+
+
+			for( i = 0; i < 20; i++){
+				petali[i] = new THREE.Mesh(petalo_geom, petalo_mat);
+
+				pivot_petalo[i] = new THREE.Object3D();
+				pivot_petalo[i].position.set(0, 1.5, 0);
+				petali[i].rotation.y = rotazione_tot;
+				rotazione_tot = rotazione_tot + 30 * Math.PI/180;
+
+				pivot_petalo[i].add(petali[i]);
+				scene.add(pivot_petalo[i]);
+			}
+
+
+			stats = new Stats();
+			stats.domElement.style.position = 'absolute';
+			stats.domElement.style.top = '0px';
+			document.body.appendChild( stats.domElement );
+
+			camera.position.set(3,4,6);
+			camera.lookAt( new THREE.Vector3(0,0,0));
+
+			function render() {
+
+				stats.update();
+				renderer.render(scene, camera);
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				controls.update();
+
+			}
+
+			render();
+		</script>
+	</body>
+</html>
